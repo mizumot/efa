@@ -1,4 +1,6 @@
 library(shiny)
+library(shinyAce)
+
 
 shinyUI(bootstrapPage(
 
@@ -34,16 +36,14 @@ shinyUI(bootstrapPage(
             strong("Scatter plot matrices"),
 
             br(),
-            downloadButton('downloadCorPlot', 'Download the plot as pdf'),
 
             plotOutput("corPlot"),
 
             br(),
 
             h3("Scree plot"),
-            downloadButton('downloadSPlot', 'Download the plot as pdf'),
 
-            plotOutput("sPlot", width="80%"),
+            plotOutput(outputId ="makesPlot", width="80%"),
 
             strong("Suggested number of factors"),
             verbatimTextOutput("nf.out"),

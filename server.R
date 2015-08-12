@@ -34,35 +34,42 @@ shinyServer(function(input, output) {
 
     
     
-    sp  <- reactive({
-        
+    sp <- reactive({
+    
         dat <- read.csv(text=input$text, sep="\t")
-        
+    
         sp <- fa.parallel(dat)
         
         list(sp = sp) #他で使用するため
     })
 
 
+
     
-    makesPlot <- function(){
+    output$makesPlot <- renderPlot({
         dat <- read.csv(text=input$text, sep="\t")
-        
         fa.parallel(dat)
-    }
-    
-    output$sPlot <- renderPlot({
-        print(makesPlot())
     })
-
-
-
+   
+   
 
     nf <- reactive({
+    
+        #dat <- read.csv(text=input$text, sep="\t")
+        #res <- fa.parallel(dat)
         
-        res <- sp()$sp
-        res
-
+        facno <- sp()$sp[[6]]
+        compono <- sp()$sp[[7]]
+        fa.val <- round(sp()$sp[[1]],2)
+        pc.val <- round(sp()$sp[[3]],2)
+        
+        cat(" Parallel analysis suggests that the number of factors =", facno, "\n",
+            "and the number of components =", compono, "\n",
+            "\n",
+            "Eigen values of original factors:", "\n",
+            fa.val,"\n","\n",
+            "Eigen values of Original components:", "\n",
+            pc.val)
     })
     
     
@@ -311,7 +318,7 @@ shinyServer(function(input, output) {
         
         dat <- read.csv(text=input$text, sep="\t")
         
-        if (input$numfactor == "parallel") {
+        if (input$numfactor == "prallel") {
             
             suggested <- sp()$sp[[6]]
             efa <- factanal(dat, factors=suggested, rotation="promax")
@@ -377,6 +384,8 @@ shinyServer(function(input, output) {
     makePlot2 <- function() {
         dat <- read.csv(text=input$text, sep="\t")
         
+        sp <- fa.parallel(dat) # ここを入れた
+
         if (input$numfactor == "parallel") {
             
             suggested <- sp()$sp[[6]]
@@ -449,51 +458,5 @@ shinyServer(function(input, output) {
         head(check(), n = 10)
     }, digits = 0)
     
-    
-    output$downloadPlot1 <- downloadHandler(
-    filename = function() {
-        paste('Plot1-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makePlot1())
-		dev.off()
-	}
-    )
-    
-    output$downloadPlot2 <- downloadHandler(
-    filename = function() {
-        paste('Plot2-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makePlot2())
-		dev.off()
-	}
-    )
-    
-    output$downloadCorPlot <- downloadHandler(
-    filename = function() {
-        paste('Corplot-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makecorPlot())
-		dev.off()
-	}
-    )
-    
-    output$downloadSPlot <- downloadHandler(
-    filename = function() {
-        paste('ScreePlot-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-        print(makesPlot())
-		dev.off()
-	}
-    )
-
-
 
 })
